@@ -52,7 +52,7 @@ void loop() {
 
   if (botaoApertado == true) {
     
-    // 1. LEITURA DOS SENSORES
+    // Leitura dos sensores
     int valorEsq = digitalRead(SENSOR_ESQUERDA);
     int valorMeio = digitalRead(SENSOR_FRONTAL);
     int valorDir = digitalRead(SENSOR_DIREITA);
