@@ -75,15 +75,13 @@ void loop() {
 
 }
 
-// ================= CRIE AS FUNÇÕES DE MOVIMENTAÇÃO =================
-
 /* * SINTAXE DE UMA FUNÇÃO:
  * void nomeDaFuncao() {
  * // comandos
  * }
  */
 
-// DESAFIO: Preencha o comportamento de cada movimento
+// DESAFIO: Faça o comportamento de cada movimento
 
 void frente() {
   // DICA: Para ir para frente, Motor Esq e Dir devem avançar
