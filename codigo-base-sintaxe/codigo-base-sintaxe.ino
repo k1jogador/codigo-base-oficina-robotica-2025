@@ -1,101 +1,114 @@
-/* * CÓDIGO BASE - OFICINA DE ROBÓTICA
- * Teste de Leitura e Movimentação
- * Autores: Prof. Dr. Richard Junior Manuel Godinez Tello e Aluno Kauã Alexandre Bernarde
+/* CÓDIGO BASE - OFICINA DE ROBÓTICA
  */
-
+ 
 // Entradas (Sensores e Botão)
 const int PINO_BOTAO = 8;
-const int SENSOR_ESQUERDA = 10;
-const int SENSOR_FRONTAL = 11; 
-const int SENSOR_DIREITA = 12;
+const int SENSOR_ESQUERDA = 12;
+const int SENSOR_FRONTAL  = 11; 
+const int SENSOR_DIREITA  = 10;
 
-// Saídas - Ponte H (Motor Direito)
-const int IN1 = 7;    // Direção A
-const int IN2 = 5;    // Direção B
-const int ENA = 6;    // Velocidade (PWM)
+// === PINEAGEM  ===
+// Motor Esquerdo
+const int ENB = 6;
+const int IN1 = 2;  // Esquerdo A
+const int IN2 = 4;  // Esquerdo B
 
-// Saídas - Ponte H (Motor Esquerdo)
-const int IN3 = 4;    // Direção A
-const int IN4 = 3;    // Direção B
-const int ENB = 2;    // Velocidade
+// Motor Direito
+const int ENA = 3;
+const int IN3 = 5;  // Direito A
+const int IN4 = 7;  // Direito B
 
-// Variável para controlar a velocidade (0 a 255)
-int velocidadeMotor = 150; 
+// Velocidade
+int velocidadeMotor = 59;
+
+// Estado do robô
+bool roboLigado = false;
 
 void setup() {
-  // Configuração inicial
-  
   Serial.begin(9600);
 
-  // Configurando Sensores
+  // Sensores
   pinMode(SENSOR_ESQUERDA, INPUT);
   pinMode(SENSOR_FRONTAL, INPUT);
   pinMode(SENSOR_DIREITA, INPUT);
-  
-  // Configurando Botão
   pinMode(PINO_BOTAO, INPUT_PULLUP);
 
-  // Configurando Motores
+  // Motores
   pinMode(IN1, OUTPUT);
   pinMode(IN2, OUTPUT);
-  pinMode(ENA, OUTPUT);
+  pinMode(ENB, OUTPUT);
   pinMode(IN3, OUTPUT);
   pinMode(IN4, OUTPUT);
-  pinMode(ENB, OUTPUT);
+  pinMode(ENA, OUTPUT);
+
+  // Garante que começa parado
+  parar();
 }
 
 void loop() {
-  // Loop principal
-
-  // Ler o estado do botão (LOW = apertado)
-  bool botaoApertado = digitalRead(PINO_BOTAO) == LOW;
-
-  if (botaoApertado == true) {
-    
-    // Leitura dos sensores
-    int valorEsq = digitalRead(SENSOR_ESQUERDA);
-    int valorMeio = digitalRead(SENSOR_FRONTAL);
-    int valorDir = digitalRead(SENSOR_DIREITA);
-
-    // Mostrar dados no Monitor se detectar linha (considerando 1 como linha)
-    if (valorMeio == 1){
-      Serial.print(" | Meio: ");
-      Serial.print(valorMeio);
-    }
-    if (valorEsq == 1){
-      Serial.print(" | Esq: ");
-      Serial.print(valorEsq);
-    }
-    if (valorDir == 1){
-      Serial.print(" | Dir: ");
-      Serial.print(valorDir);
-    }
-
-    Serial.println();
-
-    // Acionamento dos motores com a ponte H
-
-    // Deslocar para frente por 3 segundos
-    digitalWrite(IN1, HIGH);
-    digitalWrite(IN2, LOW);
-    analogWrite(ENA, velocidadeMotor); 
-
-    digitalWrite(IN3, HIGH);
-    digitalWrite(IN4, LOW);
-    analogWrite(ENB, velocidadeMotor);
-
-    delay(3000); 
-
-    // Rotacionar para esquerda por 3 segundos
-    digitalWrite(IN1, HIGH); // Direito vai pra frente
-    digitalWrite(IN2, LOW);
-    analogWrite(ENA, velocidadeMotor);
-
-    digitalWrite(IN3, LOW);  // Esquerdo vai pra trás
-    digitalWrite(IN4, HIGH);
-    analogWrite(ENB, velocidadeMotor); 
-
-    delay(3000);
-
+  
+  // Lógica do Botão (Liga/Desliga)
+  if (digitalRead(PINO_BOTAO) == LOW) {
+    roboLigado = !roboLigado; // (se estitver ligado, desliga...)
+    delay(200);
   }
+
+  // Se o robô estiver desligado, chama a função parar()
+  if (roboLigado == false) {
+    parar();
+    return;
+  }
+
+  // Leitura dos Sensores (retornam false ou true)
+  bool s_esq = digitalRead(SENSOR_ESQUERDA);
+  bool s_cen = digitalRead(SENSOR_FRONTAL);
+  bool s_dir = digitalRead(SENSOR_DIREITA);
+
+  // ====================================================
+  // DESAFIO: CHAMADA DE FUNÇÕES
+  // Aqui você vai usar a lógica "SE... ENTÃO..."
+  // De inicio, teste apenas chamar a função frente();
+  // ====================================================
+  
+  // Exemplo de teste:
+  // frente(); 
+
+}
+
+// ================= CRIE AS FUNÇÕES DE MOVIMENTAÇÃO =================
+
+/* * SINTAXE DE UMA FUNÇÃO:
+ * void nomeDaFuncao() {
+ * // comandos
+ * }
+ */
+
+// DESAFIO: Preencha o comportamento de cada movimento
+
+void frente() {
+  // DICA: Para ir para frente, Motor Esq e Dir devem avançar
+  // Escreva o código aqui:
+  
+}
+
+void virarEsquerda() {
+  // DICA: Motor Esq para trás, Motor Dir para frente
+  // Escreva o código aqui:
+
+}
+
+void virarDireita() {
+  // DICA: Motor Esq para frente, Motor Dir para trás
+  // Escreva o código aqui:
+
+}
+
+void parar() {
+  // Exemplo pronto:
+  analogWrite(ENB, 0);
+  analogWrite(ENA, 0);
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, LOW);
 }

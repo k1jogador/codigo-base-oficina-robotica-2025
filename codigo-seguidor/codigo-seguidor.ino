@@ -1,109 +1,114 @@
-/* * CÓDIGO BASE - OFICINA DE ROBÓTICA
- * Teste de Leitura e Movimentação
- * Autores: Prof. Dr. Richard Junior Manuel Godinez Tello e Aluno Kauã Alexandre Bernarde
+/* CÓDIGO BASE - OFICINA DE ROBÓTICA
+ * melhorado
  */
 
 // Entradas (Sensores e Botão)
 const int PINO_BOTAO = 8;
-const int SENSOR_ESQUERDA = 10;
-const int SENSOR_FRONTAL = 11; 
-const int SENSOR_DIREITA = 12;
+const int SENSOR_ESQUERDA = 12;
+const int SENSOR_FRONTAL  = 11; 
+const int SENSOR_DIREITA  = 10;
 
-// Saídas - Ponte H (Motor Direito)
-const int IN1 = 7;    // Direção A
-const int IN2 = 5;    // Direção B
-const int ENA = 6;    // Velocidade (PWM)
+// === PINEAGEM  ===
+// Motor Esquerdo
+const int ENB = 6;
+const int IN1 = 2;  // Esquerdo A
+const int IN2 = 4;  // Esquerdo B
 
-// Saídas - Ponte H (Motor Esquerdo)
-const int IN3 = 4;    // Direção A
-const int IN4 = 2;    // Direção B
-const int ENB = 3;    // Velocidade (PWM)
+// Motor Direito
+const int ENA = 3;
+const int IN3 = 5;  // Direito A
+const int IN4 = 7;  // Direito B
 
-// Variável para controlar a velocidade (0 a 255)
-int velocidadeMotor = 150; 
+// Velocidade
+int velocidadeMotor = 59; // velocidade interessante
+
+// Estado do robô
+bool roboLigado = false;
 
 void setup() {
-  // Configuração inicial
-  
   Serial.begin(9600);
 
-  // Configurando Sensores
   pinMode(SENSOR_ESQUERDA, INPUT);
   pinMode(SENSOR_FRONTAL, INPUT);
   pinMode(SENSOR_DIREITA, INPUT);
-  
-  // Configurando Botão
+
   pinMode(PINO_BOTAO, INPUT_PULLUP);
 
-  // Configurando Motores
   pinMode(IN1, OUTPUT);
   pinMode(IN2, OUTPUT);
-  pinMode(ENA, OUTPUT);
+  pinMode(ENB, OUTPUT);
+
   pinMode(IN3, OUTPUT);
   pinMode(IN4, OUTPUT);
-  pinMode(ENB, OUTPUT);
+  pinMode(ENA, OUTPUT);
+
+  parar();
 }
 
 void loop() {
-  // Loop principal
 
-  // Ler o estado do botão (LOW = apertado)
-  bool botaoApertado = digitalRead(PINO_BOTAO) == LOW;
-
-  if (botaoApertado == true) {
-    
-    // Leitura dos sensores
-    int valorEsq = digitalRead(SENSOR_ESQUERDA);
-    int valorMeio = digitalRead(SENSOR_FRONTAL);
-    int valorDir = digitalRead(SENSOR_DIREITA);
-
-    if (valorMeio == 1){
-      digitalWrite(IN1, HIGH);
-      digitalWrite(IN2, LOW);
-      analogWrite(ENA, velocidadeMotor); 
-
-      digitalWrite(IN3, HIGH);
-      digitalWrite(IN4, LOW);
-      analogWrite(ENB, velocidadeMotor);
-    }
-    if (valorEsq == 1){
-      digitalWrite(IN1, HIGH);
-      digitalWrite(IN2, LOW);
-      analogWrite(ENA, velocidadeMotor);
-
-      digitalWrite(IN3, LOW);
-      digitalWrite(IN4, HIGH);
-      analogWrite(ENB, velocidadeMotor); 
-    }
-    if (valorDir == 1){
-      digitalWrite(IN1, LOW);
-      digitalWrite(IN2, HIGH);
-      analogWrite(ENA, velocidadeMotor);
-
-      digitalWrite(IN3, HIGH); 
-      digitalWrite(IN4, LOW);
-      analogWrite(ENB, velocidadeMotor); 
-    }
-    if (valorMeio == 1 || valorDir == 1 || valorEsq == 1){
-      digitalWrite(IN1, HIGH);
-      digitalWrite(IN2, LOW);
-      analogWrite(ENA, velocidadeMotor); 
-
-      digitalWrite(IN3, HIGH);
-      digitalWrite(IN4, LOW);
-      analogWrite(ENB, velocidadeMotor);
-      
-      delay(250);
-    }
-    if (valorMeio == 0 || valorDir == 0 || valorEsq == 0){
-      digitalWrite(IN1, LOW);
-      digitalWrite(IN2, LOW);
-      digitalWrite(ENA, LOW); 
-
-      digitalWrite(IN3, LOW);
-      digitalWrite(IN4, LOW);
-      digitalWrite(ENB, LOW);
-    }
-
+  // Liga/Desliga com debounce básico
+  if (digitalRead(PINO_BOTAO) == LOW) {
+    roboLigado = !roboLigado;
+    delay(200);
   }
+
+  if (!roboLigado) {
+    parar();
+    return;
+  }
+
+  // Leitura dos sensores
+  bool S_E = digitalRead(SENSOR_ESQUERDA);
+  bool S_C = digitalRead(SENSOR_FRONTAL);
+  bool S_D = digitalRead(SENSOR_DIREITA);
+
+  // ====== LÓGICA ======
+
+  if (S_E == 1 && S_C == 1 && S_D == 1) {
+    frente();
+  }
+  else if (S_E == 0 && S_C == 1 && S_D == 0) {
+    frente();
+  }
+  else if (S_E == 1 && S_D == 0) {
+    virarEsquerda();
+  }
+  else if (S_D == 1 && S_E == 0) {
+    virarDireita();
+  }
+  else {
+    frente();
+  }
+}
+
+void frente() {
+  digitalWrite(IN1, HIGH); digitalWrite(IN2, LOW);  // Esquerdo
+  digitalWrite(IN3, HIGH); digitalWrite(IN4, LOW);  // Direito
+  analogWrite(ENB, velocidadeMotor);
+  analogWrite(ENA, velocidadeMotor);
+}
+
+void virarEsquerda() {
+  digitalWrite(IN1, LOW);  digitalWrite(IN2, HIGH); // Esquerdo ré
+  digitalWrite(IN3, HIGH); digitalWrite(IN4, LOW);  // Direito frente
+  analogWrite(ENB, velocidadeMotor);
+  analogWrite(ENA, velocidadeMotor);
+}
+
+void virarDireita() {
+  digitalWrite(IN1, HIGH); digitalWrite(IN2, LOW);  // Esquerdo frente
+  digitalWrite(IN3, LOW);  digitalWrite(IN4, HIGH); // Direito ré
+  analogWrite(ENB, velocidadeMotor);
+  analogWrite(ENA, velocidadeMotor);
+}
+
+void parar() {
+  analogWrite(ENB, 0);
+  analogWrite(ENA, 0);
+
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, LOW);
 }
